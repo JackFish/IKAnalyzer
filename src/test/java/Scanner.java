@@ -11,7 +11,6 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.QueryBuilder;
-import org.apache.lucene.util.Version;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.helper.HttpConnection;
@@ -19,11 +18,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class Scanner {
     final int deep = 6;
     final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36";
-    File dirc = FileSystems.getDefault().getPath("e:/scanner").toFile();
+    Path dirc = FileSystems.getDefault().getPath("e:/scanner");
     //当前层的URL
     Stack<String[]> stackcurt = new Stack<String[]>();
     //下一层的URL和名称
@@ -53,7 +52,7 @@ public class Scanner {
     public Scanner() {
         try {
             directory = FSDirectory.open(dirc);
-            config = new IndexWriterConfig(Version.LUCENE_4_10_2, analyzer);
+            config = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(directory, config);
             config.setMaxBufferedDocs(10);
         } catch (IOException e) {
@@ -63,15 +62,13 @@ public class Scanner {
 
     public static void main(String[] args) throws IOException {
 
-        Scanner pTest = new Scanner();
+        Scanner scanner = new Scanner();
         String startURL = "http://www.cnscg.org/";
-        pTest.startWork(startURL);
+        scanner.startWork(startURL);
 
-        System.out.println(pTest.search("速度与激情"));
+        System.out.println(scanner.search("速度与激情"));
 //      System.out.println(
 //      pTest.isIndexed("http://www.9amhg.com/?intr=806"));
-
-
     }
 
     /**

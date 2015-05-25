@@ -26,8 +26,6 @@ package org.wltea.analyzer.lucene;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;
 
-import java.io.Reader;
-
 /**
  * IK分词器，Lucene Analyzer接口实现
  * 兼容Lucene 4.0版本
@@ -38,7 +36,7 @@ public final class IKAnalyzer extends Analyzer {
 
     /**
      * IK分词器Lucene  Analyzer接口实现类
-     *
+     * <p/>
      * 默认细粒度切分算法
      */
     public IKAnalyzer() {
@@ -67,8 +65,8 @@ public final class IKAnalyzer extends Analyzer {
      * 重载Analyzer接口，构造分词组件
      */
     @Override
-    protected TokenStreamComponents createComponents(String fieldName, final Reader in) {
-        Tokenizer _IKTokenizer = new IKTokenizer(in, this.useSmart());
+    protected TokenStreamComponents createComponents(String fieldName) {
+        Tokenizer _IKTokenizer = new IKTokenizer(this.useSmart());
         return new TokenStreamComponents(_IKTokenizer);
     }
 

@@ -76,7 +76,7 @@ public class LuceneIndexAndSearchDemo {
             directory = new RAMDirectory();
 
             // 配置IndexWriterConfig
-            IndexWriterConfig iwConfig = new IndexWriterConfig(Version.LATEST, analyzer);
+            IndexWriterConfig iwConfig = new IndexWriterConfig( analyzer);
             iwConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             iwriter = new IndexWriter(directory, iwConfig);
             // 写入索引
