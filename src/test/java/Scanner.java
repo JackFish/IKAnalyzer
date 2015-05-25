@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -37,32 +36,24 @@ import java.util.regex.Pattern;
 public class Scanner {
 
 
-    File dirc = FileSystems.getDefault().getPath("e:/scanner").toFile();
-
-    //当前层的URL
-    Stack<String[]> stackcurt = new Stack<String[]>();
-
-    //下一层的URL和名称
-    Stack<String[]> stacknext = new Stack<String[]>();
-
     //控制递归层数
     final int deep = 6;
-
-    Analyzer analyzer = new IKAnalyzer();
-
-    FSDirectory directory;
-
-    IndexWriterConfig config;
-
-    IndexWriter indexWriter;
-
     final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36";
+    File dirc = FileSystems.getDefault().getPath("e:/scanner").toFile();
+    //当前层的URL
+    Stack<String[]> stackcurt = new Stack<String[]>();
+    //下一层的URL和名称
+    Stack<String[]> stacknext = new Stack<String[]>();
+    Analyzer analyzer = new IKAnalyzer();
+    FSDirectory directory;
+    IndexWriterConfig config;
+    IndexWriter indexWriter;
 
     public Scanner() {
         try {
             directory = FSDirectory.open(dirc);
-            config = new IndexWriterConfig(Version.LUCENE_4_10_2,analyzer);
+            config = new IndexWriterConfig(Version.LUCENE_4_10_2, analyzer);
             indexWriter = new IndexWriter(directory, config);
             config.setMaxBufferedDocs(10);
         } catch (IOException e) {
@@ -73,10 +64,10 @@ public class Scanner {
     public static void main(String[] args) throws IOException {
 
         Scanner pTest = new Scanner();
-        String starturl = "http://www.163.com";
-        pTest.startWork(starturl);
+        String startURL = "http://www.cnscg.org/";
+        pTest.startWork(startURL);
 
-        System.out.println(pTest.search("妻子"));
+        System.out.println(pTest.search("速度与激情"));
 //      System.out.println(
 //      pTest.isIndexed("http://www.9amhg.com/?intr=806"));
 
@@ -84,18 +75,46 @@ public class Scanner {
     }
 
     /**
+     * MD5 加密
+     *
+     * @param plainText
+     * @return String
+     */
+    public static String md5(String plainText) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            byte b[] = md.digest();
+            int i;
+            StringBuffer buf = new StringBuffer();
+            for (int offset = 0; offset < b.length; offset++) {
+                i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            return buf.toString().substring(8, 24);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * 使用方式并不是递归得到URL，而是逐层解析。
      * 得到页面内容
      *
-     * @param urlname
+     * @param URLName
      */
-    public void getPageContent(String[] urlname) {
+    public void getPageContent(String[] URLName) {
 
-        Connection connection = HttpConnection.connect(urlname[0]);
+        Connection connection = HttpConnection.connect(URLName[0]);
         connection.ignoreContentType(true);
         connection.ignoreHttpErrors(true);
         connection.userAgent(userAgent);
-        connection.referrer(urlname[2]);
+        connection.referrer(URLName[2]);
 
         org.jsoup.nodes.Document document = null;
         Response response = null;
@@ -103,7 +122,7 @@ public class Scanner {
 
 
         //如果本身就是资源就直接索引
-        if (isResource(urlname[0])) {
+        if (isResource(URLName[0])) {
             store = true;
         } else {
 
@@ -124,7 +143,7 @@ public class Scanner {
         }
 
         try {
-            indexPageContent(urlname[0], urlname[1], store);
+            indexPageContent(URLName[0], URLName[1], store);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,11 +155,11 @@ public class Scanner {
 
             while (iterator.hasNext()) {
                 Element element = iterator.next();
-                String attrurl = element.attr("href");
-                attrurl = processUrl(attrurl, urlname[0]);
+                String attrURL = element.attr("href");
+                attrURL = processURL(attrURL, URLName[0]);
                 try {
-                    if (!isIndexed(attrurl))
-                        stacknext.push(new String[]{attrurl, element.text(), urlname[0]});
+                    if (!isIndexed(attrURL))
+                        stacknext.push(new String[]{attrURL, element.text(), URLName[0]});
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -151,17 +170,17 @@ public class Scanner {
     }
 
     /**
-     * 还原url链接
+     * 还原URL链接
      *
-     * @param url
-     * @param parenturl
+     * @param URL
+     * @param parentURL
      * @return
      */
-    public String processUrl(String url, String parenturl) {
+    public String processURL(String URL, String parentURL) {
 
         Pattern pattern_host = Pattern.compile("http://\\w+\\.\\w+\\.\\w+");
 
-        Matcher matcher_host = pattern_host.matcher(parenturl);
+        Matcher matcher_host = pattern_host.matcher(parentURL);
         String host = null;
 
 
@@ -169,34 +188,34 @@ public class Scanner {
             host = matcher_host.group();
 
         if (host == null)
-            return url;
+            return URL;
 
-        if (url.startsWith("/"))
-            return host + url;
-        else if (url.startsWith("../")) {
+        if (URL.startsWith("/"))
+            return host + URL;
+        else if (URL.startsWith("../")) {
 
 
-            while (url.startsWith("../")) {
-                url = url.substring(3);
-                parenturl = parenturl.substring(0, parenturl.lastIndexOf("/") - 1);
-                parenturl = parenturl.substring(0, parenturl.lastIndexOf("/"));
+            while (URL.startsWith("../")) {
+                URL = URL.substring(3);
+                parentURL = parentURL.substring(0, parentURL.lastIndexOf("/") - 1);
+                parentURL = parentURL.substring(0, parentURL.lastIndexOf("/"));
             }
 
-            return parenturl + "/" + url;
+            return parentURL + "/" + URL;
         }
 
-        return url;
+        return URL;
     }
 
     /**
      * 判断返回类型是不是视频
      *
-     * @param contenttype
-     * @return
+     * @param contentType
+     * @return boolean
      */
-    public boolean isMP4(String contenttype) {
+    public boolean isMP4(String contentType) {
 
-        if (contenttype.startsWith("video")) {
+        if (contentType.startsWith("video")) {
             return true;
         }
 
@@ -206,14 +225,14 @@ public class Scanner {
     /**
      * 判断这个链接是不是资源
      *
-     * @param url
-     * @return
+     * @param URL
+     * @return boolean
      */
-    public boolean isResource(String url) {
+    public boolean isResource(String URL) {
 
         //添加资源识别的种类
-        if (url.endsWith(".mp4")
-                || url.endsWith(".torrent")) {
+        if (URL.endsWith(".mp4")
+                || URL.endsWith(".torrent")) {
             return true;
         }
 
@@ -224,14 +243,14 @@ public class Scanner {
     /**
      * 开始工作
      *
-     * @param urls
+     * @param URLs
      */
-    public void startWork(String... urls) {
+    public void startWork(String... URLs) {
 
         int deep = 1;
 
-        for (int i = 0; i < urls.length; i++) {
-            stackcurt.push(new String[]{urls[i], "", ""});
+        for (int i = 0; i < URLs.length; i++) {
+            stackcurt.push(new String[]{URLs[i], "", ""});
         }
 
         while (this.deep > deep) {
@@ -256,16 +275,16 @@ public class Scanner {
     /**
      * 索引链接
      *
-     * @param url
+     * @param URL
      * @throws java.io.IOException
      */
-    public void indexPageContent(String url, String title, boolean store) throws IOException {
+    public void indexPageContent(String URL, String title, boolean store) throws IOException {
 
 
-        System.out.println("索引" + url + "\t" + title);
+        System.out.println("索引\t" + URL + "\t" + title);
         Document document = new Document();
-        document.add(new TextField("url", url, Store.YES));
-        document.add(new TextField("md5code", md5(url), Store.YES));
+        document.add(new TextField("URL", URL, Store.YES));
+        document.add(new TextField("md5code", md5(URL), Store.YES));
 
         document.add(new TextField("title", title, Store.YES));
 
@@ -287,15 +306,14 @@ public class Scanner {
         return false;
     }
 
-
     /**
      * 判断URL是不是已经被索引过了
      *
-     * @param url
+     * @param URL
      * @return
      * @throws java.io.IOException
      */
-    public boolean isIndexed(String url) throws IOException {
+    public boolean isIndexed(String URL) throws IOException {
 
 
         if (!directory.getDirectory().toString().contains("segments.gen"))
@@ -305,7 +323,7 @@ public class Scanner {
         IndexReader indexReader = DirectoryReader.open(directory);
 
         IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-        TermQuery query = new TermQuery(new Term("md5code", md5(url)));
+        TermQuery query = new TermQuery(new Term("md5code", md5(URL)));
 
         TopDocs docs = indexSearcher.search(query, 1);
 
@@ -329,7 +347,7 @@ public class Scanner {
 
         TopDocs docs = indexSearcher.search(booleanQuery, 10);
 
-        List<String> urls = new ArrayList<String>();
+        List<String> URLs = new ArrayList<String>();
 
         Highlighter highlighter = new Highlighter(new SimpleHTMLFormatter(), new QueryScorer(booleanQuery));
 
@@ -338,7 +356,7 @@ public class Scanner {
         if (docs != null && docss.length > 0) {
             for (int i = 0; i < docss.length; i++) {
                 Document document = indexSearcher.doc(docss[i].doc);
-                urls.add(document.get("url"));
+                URLs.add(document.get("URL"));
                 final Reader reader = new StringReader(document.get("title"));
                 TokenStream tokenStream = analyzer.tokenStream("title", reader);
                 try {
@@ -347,43 +365,12 @@ public class Scanner {
                 } catch (InvalidTokenOffsetsException e) {
                     e.printStackTrace();
                 }
-                System.out.println("\t" + document.get("url") + "\t" + document.get("title") + "\t");
+                System.out.println("\t" + document.get("URL") + "\t" + document.get("title") + "\t");
 
                 System.out.println("\n");
             }
         }
 
-        return urls;
-    }
-
-    /**
-     * MD5 加密
-     *
-     * @param plainText
-     * @return
-     */
-    public static String md5(String plainText) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(plainText.getBytes());
-            byte b[] = md.digest();
-
-            int i;
-
-            StringBuffer buf = new StringBuffer();
-            for (int offset = 0; offset < b.length; offset++) {
-                i = b[offset];
-                if (i < 0)
-                    i += 256;
-                if (i < 16)
-                    buf.append("0");
-                buf.append(Integer.toHexString(i));
-            }
-
-            return buf.toString().substring(8, 24);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return URLs;
     }
 }
