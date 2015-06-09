@@ -334,7 +334,7 @@ public class Dictionary {
         _QuantifierDict = new DictSegment((char) 0);
         // 读取量词词典文件
         InputStream is = this.getClass().getClassLoader()
-                .getResourceAsStream(cfg.getQuantifierDicionary());
+                .getResourceAsStream(cfg.getQuantifierDictionary());
         if (is == null) {
             throw new RuntimeException("Quantifier Dictionary not found!!!");
         }

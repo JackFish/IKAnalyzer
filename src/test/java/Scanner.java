@@ -16,6 +16,7 @@ import org.jsoup.Connection.Response;
 import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.junit.Test;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.IOException;
@@ -36,22 +37,23 @@ public class Scanner {
 
 
     //控制递归层数
-    final int deep = 6;
-    final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) "
+    private static final int deep = 6;
+    private static final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36";
-    Path dirc = FileSystems.getDefault().getPath("e:/scanner");
+    Path path = FileSystems.getDefault().getPath("e:/scanner");
     //当前层的URL
-    Stack<String[]> stackcurt = new Stack<String[]>();
+    Stack<String[]> stackCurrent = new Stack<String[]>();
     //下一层的URL和名称
-    Stack<String[]> stacknext = new Stack<String[]>();
+    Stack<String[]> stackNext = new Stack<String[]>();
     Analyzer analyzer = new IKAnalyzer();
     FSDirectory directory;
     IndexWriterConfig config;
     IndexWriter indexWriter;
+    private static final Scanner scanner = new Scanner();
 
     public Scanner() {
         try {
-            directory = FSDirectory.open(dirc);
+            directory = FSDirectory.open(path);
             config = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(directory, config);
             config.setMaxBufferedDocs(10);
@@ -60,15 +62,14 @@ public class Scanner {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    @Test
+    public void ScanTest() throws IOException {
 
-        Scanner scanner = new Scanner();
         String startURL = "http://www.cnscg.org/";
         scanner.startWork(startURL);
 
-        System.out.println(scanner.search("狼图腾"));
-//      System.out.println(
-//      pTest.isIndexed("http://www.9amhg.com/?intr=806"));
+        System.out.println(scanner.search("速度与激情"));
+//        System.out.println(scanner.isIndexed(startURL));
     }
 
     /**
@@ -156,7 +157,7 @@ public class Scanner {
                 attrURL = processURL(attrURL, URLName[0]);
                 try {
                     if (!isIndexed(attrURL))
-                        stacknext.push(new String[]{attrURL, element.text(), URLName[0]});
+                        stackNext.push(new String[]{attrURL, element.text(), URLName[0]});
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -247,21 +248,21 @@ public class Scanner {
         int deep = 1;
 
         for (int i = 0; i < URLs.length; i++) {
-            stackcurt.push(new String[]{URLs[i], "", ""});
+            stackCurrent.push(new String[]{URLs[i], "", ""});
         }
 
         while (this.deep > deep) {
-            if (stackcurt.isEmpty()) {
-                stackcurt = stacknext;
-                stacknext = new Stack<String[]>();
+            if (stackCurrent.isEmpty()) {
+                stackCurrent = stackNext;
+                stackNext = new Stack<String[]>();
                 deep++;
             }
 
-            if (stackcurt.isEmpty())
+            if (stackCurrent.isEmpty())
                 break;
 
             try {
-                getPageContent(stackcurt.pop());
+                getPageContent(stackCurrent.pop());
             } catch (RuntimeException e) {
                 //e.printStackTrace();
             }
