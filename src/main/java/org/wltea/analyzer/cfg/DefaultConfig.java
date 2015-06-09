@@ -115,7 +115,7 @@ public class DefaultConfig implements Configuration {
      * 获取量词词典路径
      * @return String 量词词典路径
      */
-    public String getQuantifierDicionary() {
+    public String getQuantifierDictionary() {
         return PATH_DIC_QUANTIFIER;
     }
 
