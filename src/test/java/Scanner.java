@@ -66,7 +66,7 @@ public class Scanner {
         String startURL = "http://www.cnscg.org/";
         scanner.startWork(startURL);
 
-        System.out.println(scanner.search("速度与激情"));
+        System.out.println(scanner.search("狼图腾"));
 //      System.out.println(
 //      pTest.isIndexed("http://www.9amhg.com/?intr=806"));
     }
