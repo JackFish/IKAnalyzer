@@ -36,7 +36,6 @@ import java.io.StringReader;
 /**
  * 使用IKAnalyzer进行分词的演示
  * 2012-10-22
- *
  */
 public class IKAnalzyerDemo {
 

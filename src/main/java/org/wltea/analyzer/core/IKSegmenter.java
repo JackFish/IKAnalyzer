@@ -34,7 +34,6 @@ import java.util.List;
 
 /**
  * IK分词器主类
- *
  */
 public final class IKSegmenter {
 
@@ -51,11 +50,12 @@ public final class IKSegmenter {
 
     /**
      * IK分词器构造函数
+     *
      * @param input
      * @param useSmart 为true，使用智能分词策略
-     *
-     * 非智能分词：细粒度输出所有可能的切分结果
-     * 智能分词： 合并数词和量词，对分词结果进行歧义判断
+     *                 <p/>
+     *                 非智能分词：细粒度输出所有可能的切分结果
+     *                 智能分词： 合并数词和量词，对分词结果进行歧义判断
      */
     public IKSegmenter(Reader input, boolean useSmart) {
         this.input = input;
@@ -66,9 +66,9 @@ public final class IKSegmenter {
 
     /**
      * IK分词器构造函数
-     * @param input
-     * @param cfg 使用自定义的Configuration构造分词器
      *
+     * @param input
+     * @param cfg   使用自定义的Configuration构造分词器
      */
     public IKSegmenter(Reader input, Configuration cfg) {
         this.input = input;
@@ -92,6 +92,7 @@ public final class IKSegmenter {
 
     /**
      * 初始化词典，加载子分词器实现
+     *
      * @return List<ISegmenter>
      */
     private List<ISegmenter> loadSegmenters() {
@@ -107,6 +108,7 @@ public final class IKSegmenter {
 
     /**
      * 分词，获取下一个词元
+     *
      * @return Lexeme 词元对象
      * @throws IOException
      */
@@ -153,6 +155,7 @@ public final class IKSegmenter {
 
     /**
      * 重置分词器到初始状态
+     *
      * @param input
      */
     public synchronized void reset(Reader input) {

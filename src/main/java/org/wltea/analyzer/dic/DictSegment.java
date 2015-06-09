@@ -71,6 +71,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 匹配词段
+     *
      * @param charArray
      * @return Hit
      */
@@ -80,6 +81,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 匹配词段
+     *
      * @param charArray
      * @param begin
      * @param length
@@ -91,6 +93,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 匹配词段
+     *
      * @param charArray
      * @param begin
      * @param length
@@ -160,6 +163,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 加载填充词典片段
+     *
      * @param charArray
      */
     void fillSegment(char[] charArray) {
@@ -168,6 +172,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 屏蔽词典中的一个词
+     *
      * @param charArray
      */
     void disableSegment(char[] charArray) {
@@ -176,6 +181,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 加载填充词典片段
+     *
      * @param charArray
      * @param begin
      * @param length
@@ -209,6 +215,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 查找本节点下对应的keyChar的segment	 *
+     *
      * @param keyChar
      * @param create  =1如果没有找到，则创建新的segment ; =0如果没有找到，不创建，返回null
      * @return
@@ -302,6 +309,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 将数组中的segment迁移到Map中
+     *
      * @param segmentArray
      */
     private void migrate(DictSegment[] segmentArray, Map<Character, DictSegment> segmentMap) {
@@ -314,6 +322,7 @@ class DictSegment implements Comparable<DictSegment> {
 
     /**
      * 实现Comparable接口
+     *
      * @param o
      * @return int
      */
